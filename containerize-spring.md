@@ -17,16 +17,17 @@ FROM openjdk:8-jdk-alpine as build
 WORKDIR /workspace/app
 
 COPY . ./
-RUN ./mvnw install -DskipTests \
-  && mkdir -p target/dependency \
-  && (cd target/dependency; jar -xf ../*.jar)
+RUN apk add --no-cache maven \
+    && mvn install -DskipTests \
+    && mkdir -p target/dependency \
+    && (cd target/dependency; jar -xf ../*.jar)
 
 FROM openjdk:8-jre-alpine
 RUN adduser \
-  --disabled-password \
-  --home /app \
-  --gecos '' app \
-  && chown -R app /app
+    --disabled-password \
+    --home /app \
+    --gecos '' app \
+    && chown -R app /app
 USER app
 
 ARG DEPENDENCY=/workspace/app/target/dependency
